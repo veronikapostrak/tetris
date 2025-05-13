@@ -18,6 +18,7 @@ let sound;
 let teamName;
 let scoreSaved = false;
 let leaderboardData = [];
+let tetrominoImages;
 
 const teamNames = [
   "404 Team Name Not Found",
@@ -520,6 +521,16 @@ function initTetrominos() {
     J: "blue",
     L: "orange",
   };
+
+  tetrominoImages = {
+    I: null, // Placeholder for future SVGs
+    O: loadImage("icons/o.svg"),
+    T: null,
+    S: null,
+    Z: null,
+    J: null,
+    L: null,
+  };
 }
 
 function getRandomInt(min, max) {
@@ -641,17 +652,41 @@ function drawPlayfield() {
 function drawTetromino() {
   if (!tetromino) return;
 
-  fill(colors[tetromino.name]);
-  noStroke();
+  const img = tetrominoImages[tetromino.name];
+
+  if (img && tetromino.name === "O") {
+    // Special case for O Tetromino: draw as one large block
+    image(
+      img,
+      tetromino.col * grid,
+      tetromino.row * grid + header,
+      grid * 2,  // Width to cover 2x2
+      grid * 2   // Height to cover 2x2
+    );
+    return;
+  }
+
+  // General case for other tetrominos
   for (let row = 0; row < tetromino.matrix.length; row++) {
     for (let col = 0; col < tetromino.matrix[row].length; col++) {
       if (tetromino.matrix[row][col]) {
-        ellipse(
-          (tetromino.col + col) * grid + grid / 2,
-          (tetromino.row + row) * grid + header + grid / 2,
-          grid * 0.8,
-          grid * 0.8,
-        );
+        if (img) {
+          image(
+            img,
+            (tetromino.col + col) * grid,
+            (tetromino.row + row) * grid + header,
+            grid,
+            grid
+          );
+        } else {
+          fill(colors[tetromino.name]);
+          ellipse(
+            (tetromino.col + col) * grid + grid / 2,
+            (tetromino.row + row) * grid + header + grid / 2,
+            grid * 0.8,
+            grid * 0.8
+          );
+        }
       }
     }
   }
