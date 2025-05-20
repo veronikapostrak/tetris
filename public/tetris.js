@@ -19,6 +19,7 @@ let teamName;
 let scoreSaved = false;
 let leaderboardData = [];
 let tetrominoImages;
+const specialShapes = ["I", "O", "Z", "C", "D", "M", "Q", "R"];
 
 const teamNames = [
   "404 Team Name Not Found",
@@ -439,7 +440,7 @@ function startGame() {
 
 function getTeamName() {
   if (usedTeamNames.length === teamNames.length) {
-    return 'ALL TEAM NAMES USED!'
+    return "ALL TEAM NAMES USED!";
   }
 
   let name = teamNames[Math.floor(Math.random() * teamNames.length)];
@@ -510,6 +511,35 @@ function initTetrominos() {
       [1, 1, 1],
       [0, 0, 0],
     ],
+    C: [
+      [0, 1, 0],
+      [0, 0, 1],
+      [0, 0, 1],
+    ],
+    D: [
+      [0, 0, 1],
+      [0, 1, 1],
+      [0, 1, 1],
+    ],
+    M: [
+      [0, 1, 1],
+      [1, 1, 1],
+      [0, 1, 0],
+    ],
+    Q: [
+      [0, 0, 1],
+      [1, 1, 1],
+      [1, 1, 0],
+    ],
+    R: [
+      [1, 1],
+      [1, 0],
+    ],
+    Z: [
+      [0, 0, 0],
+      [1, 1, 0],
+      [0, 1, 1],
+    ],
   };
 
   colors = {
@@ -520,16 +550,27 @@ function initTetrominos() {
     Z: "red",
     J: "blue",
     L: "orange",
+    C: "pink",
+    D: "brown",
+    M: "lightblue",
+    Q: "lightgreen",
+    R: "lightyellow",
   };
 
   tetrominoImages = {
-    I: null, // Placeholder for future SVGs
-    O: loadImage("icons/o.svg"),
+    I: loadImage("icons/the_i.png"),
+    O: loadImage("icons/the_o1.png"),
     T: null,
     S: null,
-    Z: null,
+    Z: loadImage("icons/the_z1.png"),
+    Z: loadImage("icons/the_z.png"),
     J: null,
     L: null,
+    C: loadImage("icons/the_c1.png"),
+    D: loadImage("icons/the_d2.png"),
+    M: loadImage("icons/the_m1.png"),
+    Q: loadImage("icons/the_q1.png"),
+    R: loadImage("icons/the_r1.png"),
   };
 }
 
@@ -538,7 +579,8 @@ function getRandomInt(min, max) {
 }
 
 function generateSequence() {
-  const sequence = ["I", "J", "L", "O", "S", "T", "Z"];
+  // const sequence = ["I", "J", "L", "O", "S", "T", "Z", "C", "D", "M", "Q", "R"]; // all tetrominos
+  const sequence = [...specialShapes]; // only special shapes
   while (sequence.length) {
     const rand = getRandomInt(0, sequence.length - 1);
     const name = sequence.splice(rand, 1)[0];
@@ -626,6 +668,49 @@ function placeTetromino() {
   tetromino = getNextTetromino();
 }
 
+// function drawPlayfield() {
+//   fill(20);
+//   noStroke();
+//   rect(0, header, width, height - header);
+
+//   for (let row = 0; row < rows; row++) {
+//     for (let col = 0; col < cols; col++) {
+//       const block = playfield[row][col];
+
+//       if (block) {
+//         //const img = tetrominoImages[block];
+//         if (img) {
+//           // Draw the image in the playfield
+//           image(
+//             img,
+//             col * grid,
+//             row * grid + header,
+//             grid,
+//             grid
+//           );
+//         }
+//         else {
+//           fill(colors[block]);
+//           ellipse(
+//             col * grid + grid / 2,
+//             row * grid + header + grid / 2,
+//             grid * 0.8,
+//             grid * 0.8
+//           );
+//         }
+//       } else {
+//         fill(30);
+//         ellipse(
+//           col * grid + grid / 2,
+//           row * grid + header + grid / 2,
+//           grid * 0.8,
+//           grid * 0.8
+//         );
+//       }
+//     }
+//   }
+// }
+
 function drawPlayfield() {
   fill(20);
   noStroke();
@@ -643,7 +728,7 @@ function drawPlayfield() {
         col * grid + grid / 2,
         row * grid + header + grid / 2,
         grid * 0.8,
-        grid * 0.8,
+        grid * 0.8
       );
     }
   }
@@ -654,14 +739,18 @@ function drawTetromino() {
 
   const img = tetrominoImages[tetromino.name];
 
-  if (img && tetromino.name === "O") {
-    // Special case for O Tetromino: draw as one large block
+  const { offset, width, height } = getOffsetWidthHeightFromImageName(
+    tetromino.name
+  );
+
+  // Special case for tetrominos with images
+  if (specialShapes.includes(tetromino.name)) {
     image(
       img,
       tetromino.col * grid,
-      tetromino.row * grid + header,
-      grid * 2,  // Width to cover 2x2
-      grid * 2   // Height to cover 2x2
+      tetromino.row * grid + offset * header,
+      grid * width,
+      grid * height
     );
     return;
   }
@@ -690,6 +779,63 @@ function drawTetromino() {
       }
     }
   }
+}
+
+function getOffsetWidthHeightFromImageName(name) {
+  let offset, width, height;
+  switch (name) {
+    case "O":
+      offset = 1;
+      width = 2;
+      height = 2;
+      break;
+    case "I":
+      offset = 1.75;
+      width = 4;
+      height = 1;
+      break;
+    case "Z":
+      offset = 1.75;
+      width = 3;
+      height = 2;
+      break;
+    case "C":
+      offset = 1;
+      width = 2;
+      height = 3;
+      break;
+    case "D":
+      offset = 1;
+      width = 2;
+      height = 3;
+      break;
+    case "M":
+      offset = 1;
+      width = 3;
+      height = 3;
+      break;
+    case "Q":
+      offset = 1;
+      width = 3;
+      height = 3;
+      break;
+    case "R":
+      offset = 1;
+      width = 2;
+      height = 2;
+      break;
+    default:
+      offset = 1;
+      width = 1;
+      height = 1;
+      break;
+  }
+
+  return {
+    offset,
+    width,
+    height,
+  };
 }
 
 function drawScore() {
@@ -772,10 +918,6 @@ function displayLeaderboard() {
   textSize(16);
   text("Top 10:", width / 2, 300);
   leaderboardData.forEach((entry, i) => {
-    text(
-      `${i + 1}. ${entry.name}: ${entry.score}`,
-      width / 2,
-      340 + i * 20,
-    );
+    text(`${i + 1}. ${entry.name}: ${entry.score}`, width / 2, 340 + i * 20);
   });
 }
